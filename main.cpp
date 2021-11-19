@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <deque>
+#include <sstream>
+#include <vector>
 #include <iostream>
 
 int window_x = 1000;
@@ -9,10 +11,13 @@ int window_y = 800;
 #include "color_palette.h"
 #include "render.h"
 
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(window_x, window_y), "Mandelbrot");
     mandelRender m;
+    
+    sf::View view = window.getDefaultView();
 
     while (window.isOpen())
     {
@@ -43,11 +48,14 @@ int main()
             }
         }
 
-        m.enhance();
-
         window.clear();
         window.draw(m.render());
+        window.draw(m.text_iter());
+        window.draw(m.text_zoom());
+        window.draw(m.text_coords());
         window.display();
+
+        m.enhance();
     }
 
     return 0;
