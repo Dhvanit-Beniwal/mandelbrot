@@ -4,28 +4,35 @@ class mandelRender{
         double cx, cy, l;
         sf::VertexArray pixels;
         std::deque<int> blackPixelIndices; //stores pixel indices that evaluated to black, for enhance() to act upon them
+        std::vector<iterAndZ> zdata; //stores iter and z_final data for evaluated points for enhance() to act upon
         sf::Font font;
         sf::Text iter_count;
         sf::Text zoom_extent;
         sf::Text coords;
         
-        bool color_pixel(int i, int j){
+        iterAndZ color_pixel(int i, int j){
             double x = cx + l*(-0.5 + (double)(i)/window_x);
             double y = cy + l*( 0.5 - (double)(j)/window_y)*((double)window_y/window_x);
-            int iter = mandelbrot(x,y,max_iter);
+            iterAndZ obj = mandelbrot(x,y,max_iter);
+            int iter = obj.iter;
             pixels[j*window_x + i].color = palette(iter,max_iter);
-            return iter == max_iter;
+            return obj;
         }
         
-        bool color_pixel(int i){
+        iterAndZ color_pixel(int i){
             return color_pixel(i%window_x, i/window_x);
         }
         
         void update(bool positionsAlso = false){
+            blackPixelIndices.clear();
             for(int j = 0 ; j < window_y ; j++){
                 for(int i = 0 ; i < window_x ; i++){
                     if(positionsAlso) pixels[j*window_x + i].position = sf::Vector2f(i + 0.5f,j + 0.5f);
-                    if(color_pixel(i,j)){blackPixelIndices.push_back(j*window_x + i);}
+                    iterAndZ obj = color_pixel(i,j);
+                    if(obj.iter == max_iter){
+                        blackPixelIndices.push_back(j*window_x + i);
+                        zdata[j*window_x + i] = obj;
+                    }
                 }
             }
             iter_count.setString(" max_iter : " + std::to_string(max_iter));
@@ -42,6 +49,7 @@ class mandelRender{
         mandelRender(double X = -0.04536275, double Y = 0.98687645, double L = 5, int max = 50){
             pixels = sf::VertexArray(sf::Points, window_x*window_y);
             cx = X; cy = Y; l = L; max_iter = max;
+            zdata.reserve(window_x*window_y);
             
             if (!font.loadFromFile("OpenSans-Light.ttf")){std::cout << "error loading font" << std::endl;}
             
@@ -96,9 +104,23 @@ class mandelRender{
                 max_iter += 100;
             }
             int N = blackPixelIndices.size(); // only want to loop through once
-            double lx = l, ly = l*((double)window_y/window_x);
             for(int k = 0; k<N; k++){
-                if(color_pixel(blackPixelIndices.front())){blackPixelIndices.push_back(blackPixelIndices.front());}
+                
+                int index = blackPixelIndices.front();
+                int i = index%window_x, j = index/window_x;
+                double x = cx + l*(-0.5 + (double)(i)/window_x);
+                double y = cy + l*( 0.5 - (double)(j)/window_y)*((double)window_y/window_x);
+
+                iterAndZ obj = zdata[index];
+                iterAndZ obj_new = mandelbrot(x,y,max_iter - obj.iter, obj.x2, obj.y2, obj.sumsq);
+                obj_new.iter += obj.iter;
+                
+                pixels[j*window_x + i].color = palette(obj_new.iter,max_iter);
+                
+                if(obj_new.iter == max_iter){
+                    blackPixelIndices.push_back(blackPixelIndices.front());
+                    zdata[index] = obj;
+                }
                 blackPixelIndices.pop_front();
             }
             iter_count.setString(" max_iter : " + std::to_string(max_iter));

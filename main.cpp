@@ -4,8 +4,8 @@
 #include <vector>
 #include <iostream>
 
-int window_x = 1000;
-int window_y = 800;
+const int window_x = 1000;
+const int window_y = 800;
 
 #include "mandelbrot.h"
 #include "color_palette.h"
