@@ -1,0 +1,70 @@
+CS 298 Course-Project:
+Mandelbrot zoom Implementation
+
+Project made using SFML 2.5 (https://www.sfml-dev.org/tutorials/2.5/) (link for installation)
+Installation for linux is a single command:
+
+```
+sudo apt-get install libsfml-dev
+```
+
+Commands for installation and building are in the makefile too (or available at https://www.sfml-dev.org/tutorials/2.5/start-linux.php).
+To install SFML, run
+
+```
+make install
+```
+
+To build the executable,
+
+```
+make exe
+```
+
+run with
+
+```
+./exe
+```
+
+or equivalently, build and run with:
+
+```
+make run
+```
+
+-> Implemented an interactive set up to zoom into a mandelbrot set render.
+-> To zoom into a point, click on it.
+-> Press Z to zoom into the center.
+-> Press shift+Z to zoom out while being centered.
+-> Press R to reset the scene.
+
+Used the optimized escape time algorithm to get a parameter (called iter) to assign colours to a point 
+(reference: https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Optimized_escape_time_algorithms)
+
+Implementation:
+
+For context, the parameter max_iter (displayed on the screen as well on the top-left) used for the escape time algorithm
+is what will control how accurate the boundaries are near a black region (region of points that are 'bounded').
+It is computationally heavy to have a high max_iter but also gives a more detailed render
+
+In this implementation, every time the scene is updated, it first displays a primitive render with a low max_iter and
+maintains a double-ended queue that stores the indices of all the pixels that evaluated to black in the first try.
+If no more events are received, the scene is enhanced by gradually producing renders for higher values of max_iter.
+But we only need to make any changes to previously evaluated black pixels.
+
+Therefore, when the scene was updated previously, some information about the mandelbrot iteration is also stored into
+an array so that it can be accessed in constant time according to it's index. When we enhance the render, we increase
+the value of max_iter and then pop index values from the double ended queue and for those index values look (in O(1) time)
+at the "zdata" that will help us calculate it's new escape time and colour it accordingly.
+
+Therefore, the scene keeps enhancing itself with the black region slowly shrinking towards it's actual boundary and 
+new points are being coloured near that boundary.
+
+To generate a colour from the escape time (iter) of a point, we calculate a corresponding (almost linearly) hue value
+for iter. Then convert this hue value to an RGB code that can be used. However, in order to prevent repeated calls to
+this convertor function, once the RGB colour code for a particular iter is decided it is stored in a lookup table.
+And the next point that requests a colour for the same iter value gets it from the lookup table. This is the same as 
+initialising a colour palette table that is referenced instead of calculating a hue. But the implementation allows to
+change the gradient of hue produced for values of iter.
+
