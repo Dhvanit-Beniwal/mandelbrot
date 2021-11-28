@@ -8,7 +8,7 @@ Made with [SFML 2.5](https://www.sfml-dev.org/tutorials/2.5). Install SFML with:
 ```
 sudo apt-get install libsfml-dev
 ```
-Commands for installation and [compiling](https://www.sfml-dev.org/tutorials/2.5/start-linux.php) are in the makefile too. Although note that this compilation will NOT [link it statically](https://www.sfml-dev.org/faq.php#build-link-static)
+Commands for installation and [compiling](https://www.sfml-dev.org/tutorials/2.5/start-linux.php) are in the makefile too. Although note that this compilation will NOT [link it statically](https://www.sfml-dev.org/faq.php#build-link-static) [(although can't do it on linux anyways)](https://en.sfml-dev.org/forums/index.php?topic=3003.msg19631#msg19631)
 
 To install SFML, run
 ```
