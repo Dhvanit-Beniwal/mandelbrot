@@ -26,4 +26,3 @@ or equivalently, build and run with:
 ```
 make run
 ```
-If you want to download and run the executable in this repo directly (do you trust me? >:) ) you will need to [set permissions for this file to be executed](https://askubuntu.com/questions/229589/how-to-make-a-file-e-g-a-sh-script-executable-so-it-can-be-run-from-a-termi/485001#485001)
